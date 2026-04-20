@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* ========== 基础样式 + 动画增强 ========== */
         * {
             margin: 0;
             padding: 0;
@@ -28,11 +27,6 @@
         body.dark {
             background: #1a1a1e;
             color: #e5e5e7;
-        }
-
-        /* 平滑过渡 */
-        .header, .card, .btn, .tab, .content-type-btn, .style-item {
-            transition: all 0.25s ease;
         }
 
         .header {
@@ -69,7 +63,6 @@
             font-size: 0.7rem;
             font-weight: 600;
             margin-left: 10px;
-            transition: opacity 0.2s;
         }
 
         .header-actions {
@@ -90,14 +83,15 @@
             transition: background 0.2s, transform 0.2s;
         }
 
+        body.dark .menu-btn {
+            color: #e5e5e7;
+        }
+
         .menu-btn:hover {
             background: rgba(0,0,0,0.05);
             transform: scale(0.95);
         }
 
-        body.dark .menu-btn {
-            color: #e5e5e7;
-        }
         body.dark .menu-btn:hover {
             background: rgba(255,255,255,0.1);
         }
@@ -781,6 +775,7 @@
     (function(){
         "use strict";
         
+        // ---------- STATE ----------
         let selectedTypes = new Set(['url']);
         let currentGradient = 'solid';
         let currentTexture = 'none';
@@ -790,6 +785,7 @@
         let qrHistory = JSON.parse(localStorage.getItem('qrHistory') || '[]');
         let imageBase64 = null;
         
+        // ---------- HELPER: Copy ----------
         window.copyToClipboard = function(text) {
             navigator.clipboard?.writeText(text).then(() => {
                 alert('Copied!');
@@ -798,7 +794,7 @@
             });
         };
         
-        // Dark mode
+        // ---------- DARK MODE ----------
         document.getElementById('darkModeToggle').addEventListener('click', () => {
             document.body.classList.toggle('dark');
             const icon = document.getElementById('darkModeToggle').querySelector('i');
@@ -806,14 +802,14 @@
             icon.classList.toggle('fa-sun');
         });
         
-        // Menu
+        // ---------- MENU ----------
         document.getElementById('menuToggle').addEventListener('click', (e) => {
             e.stopPropagation();
             document.getElementById('menuDropdown').classList.toggle('active');
         });
         document.addEventListener('click', () => document.getElementById('menuDropdown').classList.remove('active'));
         
-        // History
+        // ---------- HISTORY ----------
         function saveHistory(name, data, types) {
             const entry = { id: Date.now(), name, types: Array.from(types).join(', '), data, date: new Date().toLocaleString() };
             qrHistory.unshift(entry);
@@ -840,7 +836,7 @@
                     const id = Number(el.dataset.historyId);
                     const entry = qrHistory.find(h => h.id === id);
                     if (entry) {
-                        generateQRFromData(entry.data, entry.name);
+                        generateQRFromData(entry.data);
                         document.getElementById('historyPanel').classList.remove('active');
                     }
                 });
@@ -855,7 +851,7 @@
         document.getElementById('closeHistoryBtn').addEventListener('click', () => document.getElementById('historyPanel').classList.remove('active'));
         document.getElementById('historySearch').addEventListener('input', e => renderHistory(e.target.value));
         
-        // Tabs
+        // ---------- TABS ----------
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -866,7 +862,7 @@
             });
         });
         
-        // Content panels
+        // ---------- CONTENT PANELS ----------
         const panels = {
             url: `<div class="form-group"><label>URL</label><input class="form-control" id="urlInput" value="https://google.com"></div>`,
             text: `<div class="form-group"><label>Text</label><textarea class="form-control" id="textInput">Hello World!</textarea></div>`,
@@ -901,7 +897,7 @@
             });
         });
         
-        // Style
+        // ---------- STYLE ----------
         document.querySelectorAll('[data-gradient]').forEach(el => el.addEventListener('click', function(){ 
             document.querySelectorAll('[data-gradient]').forEach(e=>e.classList.remove('active')); 
             this.classList.add('active'); 
@@ -914,7 +910,7 @@
         }));
         document.getElementById('opacitySlider').addEventListener('input', e => document.getElementById('opacityVal').textContent = e.target.value);
         
-        // Data
+        // ---------- DATA ----------
         function getMultiData() {
             const c = { _header: document.getElementById('pageHeader').value || 'My QR' };
             if (selectedTypes.has('url')) c.url = document.getElementById('urlInput')?.value || 'https://google.com';
@@ -929,11 +925,11 @@
             return JSON.stringify(c);
         }
         
-        // QR Generation (optimized for scan reliability)
+        // ---------- QR GENERATION ----------
         async function generateQRCode() {
             const data = getMultiData();
             const qrName = document.getElementById('qrName').value || 'My QR';
-            await generateQRFromData(data, qrName);
+            await generateQRFromData(data);
             saveHistory(qrName, data, selectedTypes);
         }
         
@@ -947,7 +943,7 @@
                 qr.make();
                 
                 const moduleCount = qr.getModuleCount();
-                const cellSize = 10;  // 增大模块尺寸，提高清晰度
+                const cellSize = 10;  // larger for better scanning
                 const size = moduleCount * cellSize;
                 
                 const canvas = document.createElement('canvas');
@@ -960,11 +956,11 @@
                 const fgColor = document.getElementById('fgColor').value;
                 const opacity = parseInt(document.getElementById('opacitySlider').value) / 100;
                 
-                // 背景
+                // Fill background
                 ctx.fillStyle = bgColor;
                 ctx.fillRect(0, 0, size, size);
                 
-                // 前景样式
+                // Foreground style (gradient or solid)
                 let fgStyle = fgColor;
                 if (currentGradient !== 'solid') {
                     let grad;
@@ -984,7 +980,7 @@
                 
                 ctx.globalAlpha = opacity;
                 
-                // 绘制模块
+                // Draw modules
                 for (let row = 0; row < moduleCount; row++) {
                     for (let col = 0; col < moduleCount; col++) {
                         if (qr.isDark(row, col)) {
@@ -1046,18 +1042,63 @@
             }
         }
         
+        // ---------- DOWNLOAD (WHITE BG + 1px BORDER) ----------
         function downloadQR() {
-            if (qrCanvas) {
-                const a = document.createElement('a');
-                a.download = `qr-${Date.now()}.png`;
-                a.href = qrCanvas.toDataURL('image/png');
-                a.click();
-            } else {
-                alert('Generate QR first!');
+            if (!qrCanvas) {
+                alert('पहले QR जनरेट करें!');
+                return;
             }
+
+            const originalCtx = qrCanvas.getContext('2d');
+            const w = qrCanvas.width;
+            const h = qrCanvas.height;
+            const imageData = originalCtx.getImageData(0, 0, w, h);
+            const data = imageData.data;
+
+            // Create new canvas with 2px extra (1px border on each side)
+            const border = 2; // 1px left + 1px right = +2 total width/height
+            const newCanvas = document.createElement('canvas');
+            newCanvas.width = w + border;
+            newCanvas.height = h + border;
+            const newCtx = newCanvas.getContext('2d');
+
+            // Fill with pure white
+            newCtx.fillStyle = '#FFFFFF';
+            newCtx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+
+            const newImageData = newCtx.getImageData(0, 0, newCanvas.width, newCanvas.height);
+            const newData = newImageData.data;
+
+            // Copy QR pixels with 1px offset
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const srcIdx = (y * w + x) * 4;
+                    const dstIdx = ((y + 1) * newCanvas.width + (x + 1)) * 4;
+
+                    const r = data[srcIdx];
+                    const g = data[srcIdx + 1];
+                    const b = data[srcIdx + 2];
+                    const a = data[srcIdx + 3];
+
+                    // Copy only non-white (QR module) pixels
+                    if (a > 0 && (r < 240 || g < 240 || b < 240)) {
+                        newData[dstIdx] = r;
+                        newData[dstIdx + 1] = g;
+                        newData[dstIdx + 2] = b;
+                        newData[dstIdx + 3] = 255;
+                    }
+                }
+            }
+
+            newCtx.putImageData(newImageData, 0, 0);
+
+            const a = document.createElement('a');
+            a.download = `QR_${Date.now()}.png`;
+            a.href = newCanvas.toDataURL('image/png');
+            a.click();
         }
         
-        // Camera & Scanner
+        // ---------- CAMERA & SCANNER ----------
         function stopCamera() {
             if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
             if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
@@ -1149,7 +1190,6 @@
             try {
                 const c = JSON.parse(data);
                 let html = '';
-                // 忽略 _header
                 
                 if (c.url) {
                     html += `<div class="preview-card">
@@ -1253,7 +1293,7 @@
             document.getElementById('analysisContainer').classList.remove('hidden');
         }
         
-        // Event listeners
+        // ---------- EVENT LISTENERS ----------
         document.getElementById('generateBtn').addEventListener('click', generateQRCode);
         document.getElementById('downloadBtn').addEventListener('click', downloadQR);
         document.getElementById('uploadArea').addEventListener('click', () => document.getElementById('fileInput').click());
@@ -1261,8 +1301,9 @@
         document.getElementById('openCameraBtn').addEventListener('click', openCamera);
         document.getElementById('closeCameraBtn').addEventListener('click', stopCamera);
         
+        // Init
         updatePanels();
-        setTimeout(generateQRCode, 1000000);
+        setTimeout(generateQRCode, 100000000);
     })();
     </script>
 </body>
