@@ -1,1310 +1,726 @@
-
-<html lang="hi">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>QR Studio • Professional</title>
+    <title>QR Studio • Ultimate Edition</title>
     
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        body {
-            background: #f5f5f7;
-            min-height: 100vh;
-            color: #1d1d1f;
-            transition: background 0.3s ease;
+        /* ================= VARIABLES & THEME ================= */
+        :root {
+            --bg-main: #f5f5f7; --text-main: #1d1d1f; --bg-card: #ffffff;
+            --border-color: rgba(0,0,0,0.08); --primary: #000000; --primary-hover: #333333;
+            --accent: #0066cc; --secondary-bg: #f5f5f7; --gray-text: #86868b;
+            --success: #34c759; --danger: #ff3b30;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body.dark {
-            background: #1a1a1e;
-            color: #e5e5e7;
-        }
-
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 16px 24px;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            border-bottom: 1px solid rgba(0,0,0,0.06);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        body.dark .header {
-            background: rgba(26, 26, 30, 0.95);
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            background: linear-gradient(135deg, #0066cc, #5ac8fa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .multi-badge {
-            background: #0066cc;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-left: 10px;
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            position: relative;
-        }
-
-        .menu-btn {
-            background: none;
-            border: none;
-            font-size: 1.4rem;
-            cursor: pointer;
-            color: #1d1d1f;
-            padding: 8px;
-            border-radius: 50%;
-            transition: background 0.2s, transform 0.2s;
-        }
-
-        body.dark .menu-btn {
-            color: #e5e5e7;
-        }
-
-        .menu-btn:hover {
-            background: rgba(0,0,0,0.05);
-            transform: scale(0.95);
-        }
-
-        body.dark .menu-btn:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .menu-dropdown {
-            display: none;
-            position: fixed;
-            top: 70px;
-            right: 24px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            min-width: 200px;
-            z-index: 200;
-            border: 1px solid rgba(0,0,0,0.08);
-            animation: fadeSlide 0.2s ease;
-        }
-
-        @keyframes fadeSlide {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        body.dark .menu-dropdown {
-            background: #2c2c2e;
-            border-color: rgba(255,255,255,0.08);
-        }
-
-        .menu-dropdown.active {
-            display: block;
-        }
-
-        .menu-item {
-            padding: 14px 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: background 0.15s;
-        }
-
-        .menu-item:hover {
-            background: #f5f5f7;
-        }
-
-        body.dark .menu-item:hover {
-            background: #3a3a3c;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 8px;
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 16px 20px 0;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 10px 20px;
-            border: none;
-            background: transparent;
-            color: #86868b;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            border-radius: 30px;
-            transition: all 0.2s;
-        }
-
-        .tab.active {
-            background: #1d1d1f;
-            color: white;
-        }
-
-        body.dark .tab.active {
-            background: #0066cc;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px 24px;
-        }
-
-        .page {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        .generator-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-        }
-
-        .full-width {
-            grid-column: span 2;
-        }
-
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-            border: 1px solid rgba(0,0,0,0.04);
-            word-wrap: break-word;
-            overflow: hidden;
-            transition: box-shadow 0.3s, transform 0.2s;
-        }
-
-        .card:hover {
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-        }
-
-        body.dark .card {
-            background: #2c2c2e;
-            border-color: rgba(255,255,255,0.04);
-        }
-
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .content-type-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .content-type-btn {
-            padding: 12px 16px;
-            background: #f5f5f7;
-            border: 1.5px solid transparent;
-            border-radius: 14px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .content-type-btn:hover {
-            background: #e8e8ed;
-            transform: translateY(-2px);
-        }
-
-        body.dark .content-type-btn {
-            background: #3a3a3c;
-            color: #e5e5e7;
-        }
-
-        .content-type-btn.active {
-            background: #0066cc;
-            color: white;
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            color: #86868b;
-            margin-bottom: 6px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1.5px solid #e5e5e7;
-            border-radius: 14px;
-            font-size: 0.95rem;
-            background: white;
-            transition: border 0.2s, box-shadow 0.2s;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #0066cc;
-            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
-        }
-
-        body.dark .form-control {
-            background: #3a3a3c;
-            border-color: #3a3a3c;
-            color: white;
-        }
-
-        textarea.form-control {
-            min-height: 80px;
-            resize: vertical;
-        }
-
-        .row-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .style-label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: #86868b;
-            margin: 16px 0 10px;
-        }
-
-        .gradient-grid, .texture-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-        }
-
-        .style-item {
-            aspect-ratio: 1;
-            border-radius: 12px;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .style-item:hover {
-            transform: scale(0.95);
-        }
-
-        .style-item.active {
-            border-color: #0066cc;
-        }
-
-        .color-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-top: 16px;
-        }
-
-        .color-picker {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .color-picker input[type="color"] {
-            width: 50px;
-            height: 40px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .opacity-control {
-            margin-top: 16px;
-        }
-
-        .qr-preview-section {
-            text-align: center;
-        }
-
-        .qr-preview {
-            background: #fafafa;
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 20px;
-            transition: background 0.3s;
-        }
-
-        body.dark .qr-preview {
-            background: #1c1c1e;
-        }
-
-        #qrcodeCanvas {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 250px;
-        }
-
-        #qrcodeCanvas canvas {
-            max-width: 250px;
-            border-radius: 12px;
-            transition: transform 0.2s;
-        }
-
-        .action-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .btn {
-            padding: 14px 20px;
-            border: none;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-primary {
-            background: #0066cc;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #0055aa;
-        }
-
-        .btn-secondary {
-            background: #f5f5f7;
-            color: #1d1d1f;
-        }
-
-        body.dark .btn-secondary {
-            background: #3a3a3c;
-            color: #e5e5e7;
-        }
-
-        .btn-small {
-            padding: 8px 16px;
-            font-size: 0.85rem;
-        }
-
-        .upload-area {
-            border: 2px dashed #c6c6c8;
-            border-radius: 20px;
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: border 0.2s, background 0.2s;
-        }
-
-        .upload-area:hover {
-            border-color: #0066cc;
-            background: rgba(0,102,204,0.02);
-        }
-
-        body.dark .upload-area {
-            border-color: #3a3a3c;
-        }
-
-        .camera-fullscreen {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            z-index: 1000;
-        }
-
-        .camera-fullscreen.active {
-            display: block;
-        }
-
-        #cameraVideo {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .scan-box {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 280px;
-            height: 280px;
-            border: 2px solid #00cc66;
-            border-radius: 24px;
-            box-shadow: 0 0 0 2000px rgba(0,0,0,0.6);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { border-color: #00cc66; }
-            50% { border-color: #66ffa6; }
-            100% { border-color: #00cc66; }
-        }
-
-        .camera-close {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.5);
-            color: white;
-            border: none;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            font-size: 1.4rem;
-            cursor: pointer;
-            z-index: 1001;
-            transition: background 0.2s;
-        }
-
-        .history-panel {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 150;
-            backdrop-filter: blur(5px);
-        }
-
-        .history-panel.active {
-            display: block;
-        }
-
-        .history-content {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100%;
-            max-width: 420px;
-            height: 100%;
-            background: white;
-            padding: 24px;
-            overflow-y: auto;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
-        }
-
-        body.dark .history-content {
-            background: #1c1c1e;
-        }
-
-        .history-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .history-search {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1.5px solid #e5e5e7;
-            border-radius: 30px;
-            margin-bottom: 20px;
-        }
-
-        .history-item {
-            padding: 16px;
-            background: #f5f5f7;
-            border-radius: 14px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            border: 1px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .history-item:hover {
-            background: #e8e8ed;
-            border-color: #0066cc;
-            transform: translateX(4px);
-        }
-
-        body.dark .history-item {
-            background: #2c2c2e;
-        }
-
-        .preview-card {
-            background: #f5f5f7;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 12px;
-            animation: fadeIn 0.4s ease;
-        }
-
-        body.dark .preview-card {
-            background: #3a3a3c;
-        }
-
-        .action-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        @media (max-width: 768px) {
-            .generator-layout {
-                grid-template-columns: 1fr;
-            }
-            .full-width {
-                grid-column: span 1;
-            }
-        }
+            --bg-main: #000000; --text-main: #f5f5f7; --bg-card: #1c1c1e;
+            --border-color: rgba(255,255,255,0.1); --primary: #ffffff; --primary-hover: #cccccc;
+            --accent: #0a84ff; --secondary-bg: #2c2c2e; --gray-text: #a1a1a6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-family); }
+        body { background: var(--bg-main); color: var(--text-main); transition: var(--transition); overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        
+        /* ================= HEADER & MENU ================= */
+        .header { background: rgba(var(--bg-card), 0.8); backdrop-filter: blur(20px); padding: 15px 20px; position: sticky; top: 0; z-index: 50; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 8px; letter-spacing: -0.5px; }
+        .header h1 i { color: var(--accent); }
+
+        .icon-btn { background: none; border: none; font-size: 1.4rem; color: var(--text-main); cursor: pointer; padding: 10px; border-radius: 50%; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; }
+        .icon-btn:hover { background: var(--border-color); }
+
+        .menu-dropdown { display: none; position: fixed; top: 65px; right: 20px; background: var(--bg-card); border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); min-width: 220px; z-index: 200; border: 1px solid var(--border-color); overflow: hidden; }
+        .menu-dropdown.active { display: block; animation: fadeIn 0.2s ease; }
+        .menu-item { padding: 15px 20px; cursor: pointer; display: flex; align-items: center; gap: 15px; font-weight: 600; font-size: 0.95rem; transition: var(--transition); border-bottom: 1px solid var(--border-color); }
+        .menu-item:hover { background: var(--secondary-bg); color: var(--accent); }
+
+        /* ================= TABS ================= */
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; animation: slideUp 0.4s ease; }
+        .tabs-wrapper { display: flex; background: var(--secondary-bg); padding: 6px; border-radius: 20px; margin-bottom: 25px; }
+        .tab-btn { flex: 1; padding: 14px; border-radius: 14px; border: none; background: transparent; font-weight: 700; font-size: 1rem; color: var(--gray-text); cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .tab-btn.active { background: var(--bg-card); color: var(--text-main); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .tab-panel { display: none; animation: fadeIn 0.3s ease; }
+        .tab-panel.active { display: block; }
+
+        .layout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .full-col { grid-column: span 2; }
+        @media (max-width: 768px) { .layout-grid { grid-template-columns: 1fr; } .full-col { grid-column: span 1; } }
+
+        /* ================= CARDS & FORMS ================= */
+        .card { background: var(--bg-card); border-radius: 24px; padding: 25px; border: 1px solid var(--border-color); box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
+        .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-text); }
+
+        .type-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 25px; }
+        .type-btn { padding: 12px 10px; background: var(--secondary-bg); border: 2px solid transparent; border-radius: 16px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--text-main); }
+        .type-btn i { font-size: 1.2rem; }
+        .type-btn:hover { background: var(--border-color); }
+        .type-btn.active { background: var(--primary); color: var(--bg-main); border-color: var(--primary); }
+
+        .form-group { margin-bottom: 20px; animation: fadeIn 0.3s ease; }
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--gray-text); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-control { width: 100%; padding: 15px; border: 2px solid var(--border-color); border-radius: 14px; font-size: 1rem; background: var(--secondary-bg); color: var(--text-main); transition: var(--transition); }
+        .form-control:focus { outline: none; border-color: var(--accent); background: var(--bg-card); }
+
+        /* ================= STYLING ENGINE ================= */
+        .style-label { font-size: 0.8rem; font-weight: 700; color: var(--gray-text); margin: 20px 0 10px; display: flex; justify-content: space-between; text-transform: uppercase; }
+        .grid-expandable { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; overflow: hidden; max-height: 60px; transition: max-height 0.4s ease; }
+        .grid-expandable.expanded { max-height: 800px; }
+        .style-item { aspect-ratio: 1; border-radius: 12px; cursor: pointer; border: 3px solid transparent; transition: var(--transition); }
+        .style-item.active { border-color: var(--accent); transform: scale(1.05); }
+        .show-more-btn { background: none; border: none; color: var(--accent); font-weight: 700; cursor: pointer; font-size: 0.8rem; }
+
+        .color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .color-picker label { font-size: 0.8rem; font-weight: 700; color: var(--gray-text); margin-bottom: 5px; display: block; }
+        .color-picker input[type="color"] { width: 100%; height: 50px; border: none; border-radius: 12px; cursor: pointer; background: var(--secondary-bg); padding: 5px; }
+        
+        .qr-preview-box { background: var(--secondary-bg); border-radius: 20px; padding: 40px; display: flex; justify-content: center; align-items: center; margin-bottom: 20px; min-height: 300px;}
+        #qrcodeCanvas canvas { max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+
+        .btn { padding: 16px 24px; border: none; border-radius: 16px; font-weight: 700; font-size: 1rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: var(--transition); width: 100%; }
+        .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+        .btn-primary { background: var(--primary); color: var(--bg-main); }
+        .btn-accent { background: var(--accent); color: white; }
+        .btn-secondary { background: var(--secondary-bg); color: var(--text-main); }
+
+        /* ================= FULLSCREEN CAMERA ================= */
+        #camera-fullscreen-container { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; background: #000; }
+        #camera-fullscreen-container.active { display: block; animation: fadeIn 0.3s; }
+        #camera-video { width: 100%; height: 100%; object-fit: cover; }
+        .camera-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; border: 50px solid rgba(0,0,0,0.6); box-sizing: border-box; }
+        .scan-line { position: absolute; top: 50px; left: 50px; right: 50px; height: 3px; background: var(--success); box-shadow: 0 0 15px var(--success); animation: scanAnim 2s infinite linear; }
+        @keyframes scanAnim { 0% { top: 50px; } 50% { top: calc(100% - 50px); } 100% { top: 50px; } }
+        .close-camera-btn { position: absolute; top: 40px; right: 30px; background: rgba(0,0,0,0.5); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; z-index: 10000; backdrop-filter: blur(5px); }
+
+        /* ================= UPLOAD & SMART SCAN RESULT ================= */
+        .upload-area { border: 2px dashed var(--gray-text); border-radius: 24px; padding: 50px 20px; text-align: center; cursor: pointer; background: var(--secondary-bg); transition: var(--transition); }
+        .upload-area:hover { border-color: var(--accent); background: rgba(0, 102, 204, 0.05); }
+        
+        .smart-result-card { display: none; background: var(--bg-card); border: 2px solid var(--accent); border-radius: 20px; padding: 25px; margin-top: 20px; animation: slideUp 0.4s ease; text-align: left;}
+        .smart-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .smart-icon { width: 50px; height: 50px; border-radius: 14px; background: rgba(0,102,204,0.1); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .smart-title { font-size: 1.2rem; font-weight: 800; }
+        
+        .parsed-details { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .detail-row { display: flex; justify-content: space-between; font-size: 0.95rem; align-items: flex-start; gap: 15px; }
+        .detail-row span { color: var(--gray-text); font-weight: 600; white-space: nowrap; }
+        .detail-row strong { color: var(--text-main); word-break: break-word; text-align: right; }
+        
+        .raw-data-box { background: var(--secondary-bg); padding: 15px; border-radius: 12px; font-family: monospace; font-size: 0.85rem; word-break: break-all; color: var(--text-main); margin-bottom: 20px; border: 1px solid var(--border-color); }
+
+        /* ================= MODALS ================= */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-main); z-index: 1000; overflow-y: auto; }
+        .modal-overlay.active { display: block; animation: slideUp 0.3s ease; }
+        .modal-header { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; background: rgba(var(--bg-card), 0.9); backdrop-filter: blur(10px); z-index: 10;}
+        .modal-content { padding: 30px 24px; max-width: 800px; margin: 0 auto; }
+        
+        .lang-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+        .lang-btn { padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--secondary-bg); font-weight: 600; cursor: pointer; text-align: center; color: var(--text-main); transition: var(--transition); }
+        .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        .about-section { background: var(--bg-card); padding: 30px; border-radius: 20px; border: 1px solid var(--border-color); margin-bottom: 20px; }
+        .about-section h3 { color: var(--accent); margin-bottom: 10px; }
+        
+        .history-item { background: var(--bg-card); padding: 15px 20px; border-radius: 16px; margin-bottom: 15px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; transition: var(--transition); cursor: pointer; }
+        .history-item:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+
+        /* HISTORY FULLSCREEN VIEW */
+        #historyViewModal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 2000; backdrop-filter: blur(10px); align-items: center; justify-content: center; flex-direction: column; }
+        #historyViewModal.active { display: flex; animation: zoomIn 0.3s ease; }
+        #historyQRCanvasBox canvas { border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); max-width: 90vw; max-height: 60vh; }
+        .history-view-actions { display: flex; gap: 15px; margin-top: 30px; width: 90vw; max-width: 400px; }
     </style>
 </head>
 <body class="light">
-    <!-- Header -->
-    <div class="header">
-        <div style="display: flex; align-items: center;">
-            <h1><i class="fas fa-qrcode" style="margin-right: 8px;"></i>QR Studio</h1>
-            <span class="multi-badge hidden" id="multiBadge">Multi</span>
-        </div>
-        <div class="header-actions">
-            <button class="menu-btn" id="menuToggle"><i class="fas fa-bars"></i></button>
-            <div class="menu-dropdown" id="menuDropdown">
-                <div class="menu-item" id="darkModeToggle">
-                    <i class="fas fa-moon"></i><span>Dark Mode</span>
-                </div>
-                <div class="menu-item" id="historyMenuBtn">
-                    <i class="fas fa-history"></i><span>History</span>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Tabs -->
-    <div class="tabs">
-        <button class="tab active" data-page="generator">Generate</button>
-        <button class="tab" data-page="scanner">Scan</button>
+    <div class="header">
+        <h1><i class="fas fa-qrcode"></i> <span data-i18n="appTitle">QR Studio</span></h1>
+        <div>
+            <button class="icon-btn" id="darkModeToggle"><i class="fas fa-moon"></i></button>
+            <button class="icon-btn" id="menuToggle"><i class="fas fa-bars"></i></button>
+        </div>
+        <div class="menu-dropdown" id="menuDropdown">
+            <div class="menu-item" onclick="closeMenu(); switchTab('generate');"><i class="fas fa-home"></i> <span data-i18n="menuHome">Home</span></div>
+            <div class="menu-item" onclick="openModal('historyModal'); renderHistory();"><i class="fas fa-history"></i> <span data-i18n="menuHistory">History</span></div>
+            <div class="menu-item" onclick="openModal('aboutModal')"><i class="fas fa-info-circle"></i> <span data-i18n="menuAbout">About App</span></div>
+            <div class="menu-item" onclick="openModal('langModal')"><i class="fas fa-language"></i> <span data-i18n="menuLanguage">Language</span></div>
+        </div>
     </div>
 
     <div class="container">
-        <!-- GENERATOR PAGE -->
-        <div class="page active" id="generatorPage">
-            <div class="generator-layout">
+        <div class="tabs-wrapper">
+            <button class="tab-btn active" onclick="switchTab('generate')"><i class="fas fa-plus-square"></i> <span data-i18n="tabGen">Generate</span></button>
+            <button class="tab-btn" onclick="switchTab('scan')"><i class="fas fa-expand"></i> <span data-i18n="tabScan">Scan</span></button>
+        </div>
+
+        <div id="tab-generate" class="tab-panel active">
+            <div class="layout-grid">
+                
                 <div class="card">
-                    <div class="card-title"><i class="fas fa-layer-group"></i> Content Types</div>
-                    <div class="content-type-grid" id="contentTypeGrid">
-                        <div class="content-type-btn active" data-type="url"><i class="fas fa-globe"></i> URL</div>
-                        <div class="content-type-btn" data-type="text"><i class="fas fa-font"></i> Text</div>
-                        <div class="content-type-btn" data-type="image"><i class="fas fa-image"></i> Image</div>
-                        <div class="content-type-btn" data-type="location"><i class="fas fa-map-pin"></i> Location</div>
-                        <div class="content-type-btn" data-type="contact"><i class="fas fa-user"></i> Contact</div>
-                        <div class="content-type-btn" data-type="wifi"><i class="fas fa-wifi"></i> WiFi</div>
-                        <div class="content-type-btn" data-type="email"><i class="fas fa-envelope"></i> Email</div>
-                        <div class="content-type-btn" data-type="sms"><i class="fas fa-comment"></i> SMS</div>
-                        <div class="content-type-btn" data-type="call"><i class="fas fa-phone"></i> Call</div>
+                    <div class="card-title"><i class="fas fa-layer-group"></i> <span data-i18n="contentType">Content Type</span></div>
+                    <div class="type-grid" id="typeGrid">
+                        <div class="type-btn active" data-type="url"><i class="fas fa-link"></i> URL</div>
+                        <div class="type-btn" data-type="text"><i class="fas fa-font"></i> Text</div>
+                        <div class="type-btn" data-type="payment"><i class="fas fa-rupee-sign"></i> Payment</div>
+                        <div class="type-btn" data-type="location"><i class="fas fa-map-marker-alt"></i> Location</div>
+                        <div class="type-btn" data-type="wifi"><i class="fas fa-wifi"></i> WiFi</div>
+                        <div class="type-btn" data-type="contact"><i class="fas fa-id-badge"></i> Contact</div>
+                        <div class="type-btn" data-type="email"><i class="fas fa-envelope"></i> Email</div>
+                        <div class="type-btn" data-type="sms"><i class="fas fa-comment"></i> SMS</div>
                     </div>
-                    <div id="contentPanels"></div>
-                    <div class="form-group">
-                        <label>Internal Header (hidden in scan)</label>
-                        <input type="text" class="form-control" id="pageHeader" value="My QR Content">
-                    </div>
-                    <div class="form-group">
-                        <label>QR Name (for history)</label>
-                        <input type="text" class="form-control" id="qrName" value="My QR">
+                    <div id="dynamicInputPanel"></div>
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label data-i18n="nameLabel">QR Name (For History)</label>
+                        <input type="text" class="form-control" id="qrName" placeholder="My QR Code">
                     </div>
                 </div>
 
                 <div class="card">
-                    <div class="card-title"><i class="fas fa-palette"></i> Style</div>
-                    <div class="style-label">GRADIENTS</div>
-                    <div class="gradient-grid" id="gradientGrid">
-                        <div class="style-item active" data-gradient="solid" style="background:#000;"></div>
-                        <div class="style-item" data-gradient="sunset" style="background:linear-gradient(135deg,#ff6b6b,#feca57);"></div>
-                        <div class="style-item" data-gradient="ocean" style="background:linear-gradient(135deg,#0066cc,#00cc99);"></div>
-                        <div class="style-item" data-gradient="purple" style="background:linear-gradient(135deg,#667eea,#764ba2);"></div>
-                        <div class="style-item" data-gradient="forest" style="background:linear-gradient(135deg,#11998e,#38ef7d);"></div>
-                    </div>
-                    <div class="style-label">TEXTURES</div>
-                    <div class="texture-grid" id="textureGrid">
-                        <div class="style-item active" data-texture="none" style="background:#fff;border:1px solid #ddd;"></div>
-                        <div class="style-item" data-texture="dots" style="background:radial-gradient(circle,#000 20%,transparent 20%);background-size:8px 8px;"></div>
-                        <div class="style-item" data-texture="lines" style="background:repeating-linear-gradient(45deg,#000 0px,#000 2px,transparent 2px,transparent 8px);"></div>
-                        <div class="style-item" data-texture="grid" style="background:linear-gradient(#000 1px,transparent 1px),linear-gradient(90deg,#000 1px,transparent 1px);background-size:8px 8px;"></div>
-                        <div class="style-item" data-texture="cross" style="background:repeating-linear-gradient(45deg,#000 0px,#000 2px,transparent 2px,transparent 6px),repeating-linear-gradient(-45deg,#000 0px,#000 2px,transparent 2px,transparent 6px);"></div>
-                    </div>
+                    <div class="card-title"><i class="fas fa-palette"></i> <span data-i18n="designSys">Design System</span></div>
+                    <div class="style-label"><span><span data-i18n="gradTitle">Colors & Gradients</span></span><button class="show-more-btn" onclick="toggleExpand('gradientGrid', this)">Show All</button></div>
+                    <div class="grid-expandable" id="gradientGrid"></div>
+                    <div class="style-label"><span><span data-i18n="texTitle">Patterns & Textures</span></span><button class="show-more-btn" onclick="toggleExpand('textureGrid', this)">Show All</button></div>
+                    <div class="grid-expandable" id="textureGrid"></div>
                     <div class="color-row">
-                        <div class="color-picker">
-                            <label>Foreground</label>
-                            <input type="color" id="fgColor" value="#000000">
-                        </div>
-                        <div class="color-picker">
-                            <label>Background</label>
-                            <input type="color" id="bgColor" value="#ffffff">
-                        </div>
-                    </div>
-                    <div class="opacity-control">
-                        <label>Opacity: <span id="opacityVal">100</span>%</label>
-                        <input type="range" id="opacitySlider" min="20" max="100" value="100" style="width:100%;">
+                        <div class="color-picker"><label>Foreground</label><input type="color" id="fgColor" value="#000000"></div>
+                        <div class="color-picker"><label>Background</label><input type="color" id="bgColor" value="#ffffff"></div>
                     </div>
                 </div>
 
-                <div class="card full-width qr-preview-section">
-                    <div class="qr-preview">
-                        <div id="qrcodeCanvas"></div>
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn btn-primary" id="generateBtn"><i class="fas fa-sync-alt"></i> Generate</button>
-                        <button class="btn btn-secondary" id="downloadBtn"><i class="fas fa-download"></i> Download PNG</button>
+                <div class="card full-col">
+                    <div class="qr-preview-box"><div id="qrcodeCanvas"></div></div>
+                    <div class="layout-grid">
+                        <button class="btn btn-primary" onclick="generateQR()"><i class="fas fa-sync"></i> <span data-i18n="btnGen">Generate & Save</span></button>
+                        <button class="btn btn-accent" onclick="downloadQR()"><i class="fas fa-download"></i> <span data-i18n="btnDown">Download HD</span></button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SCANNER PAGE -->
-        <div class="page" id="scannerPage">
-            <div class="card">
-                <div class="card-title"><i class="fas fa-camera"></i> Scan QR Code</div>
-                <div class="upload-area" id="uploadArea">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <h3>Upload Image</h3>
-                    <p style="color:#86868b;">or click to select</p>
-                    <input type="file" id="fileInput" accept="image/*" hidden>
+        <div id="tab-scan" class="tab-panel">
+            <div class="card" style="text-align: center; padding: 50px 20px;">
+                <h2 style="margin-bottom: 15px;">Smart QR Scanner</h2>
+                <p style="color: var(--gray-text); margin-bottom: 40px;">Get full comprehensive details of any QR code. Camera scans auto-open natively while also saving details.</p>
+                
+                <div style="max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px;">
+                    
+                    <button class="btn btn-primary" style="padding: 20px;" onclick="startFullscreenCamera()">
+                        <i class="fas fa-camera fa-2x" style="margin-right: 10px;"></i>
+                        <span style="font-size: 1.2rem;">Open Camera</span>
+                    </button>
+
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+                        <span style="color: var(--gray-text); font-weight: 700;">OR</span>
+                        <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+                    </div>
+
+                    <label class="upload-area" for="upload-qr-file">
+                        <i class="fas fa-image fa-3x" style="color: var(--accent); margin-bottom: 15px;"></i>
+                        <h3 style="margin-bottom: 5px;">Upload Image</h3>
+                        <p style="font-size: 0.9rem; color: var(--gray-text);">Enhanced scanning for blurry & angled images</p>
+                        <input type="file" id="upload-qr-file" accept="image/*" style="display: none;" onchange="handleFileUpload(event)">
+                    </label>
+
+                    <div class="smart-result-card" id="smart-result-card">
+                        <div class="smart-header">
+                            <div class="smart-icon" id="res-icon"><i class="fas fa-check"></i></div>
+                            <div class="smart-title" id="res-title">Data Found</div>
+                        </div>
+                        
+                        <div style="font-size: 0.8rem; font-weight:bold; color:var(--gray-text); margin-bottom:10px;">PARSED DETAILS:</div>
+                        <div class="parsed-details" id="res-parsed-details"></div>
+                        
+                        <div style="font-size: 0.8rem; font-weight:bold; color:var(--gray-text); margin-bottom:10px;">RAW PAYLOAD:</div>
+                        <div class="raw-data-box" id="res-raw-data"></div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <button class="btn btn-secondary" onclick="copyResultData()"><i class="fas fa-copy"></i> Copy Raw</button>
+                            <button class="btn btn-accent" id="res-action-btn" onclick="executeResultAction()"><i class="fas fa-external-link-alt"></i> Open</button>
+                        </div>
+                    </div>
                 </div>
-                <button class="btn btn-primary" id="openCameraBtn" style="width:100%; margin-top:16px;">
-                    <i class="fas fa-camera"></i> Open Camera
-                </button>
-            </div>
-            <div class="card hidden" id="analysisContainer">
-                <div class="card-title"><i class="fas fa-info-circle"></i> Scan Result</div>
-                <div id="analysisDetails"></div>
-                <div id="scanActions" style="margin-top:20px;"></div>
             </div>
         </div>
     </div>
 
-    <!-- Camera Fullscreen -->
-    <div class="camera-fullscreen" id="cameraFullscreen">
-        <video id="cameraVideo" autoplay playsinline></video>
-        <div class="scan-box"></div>
-        <button class="camera-close" id="closeCameraBtn"><i class="fas fa-arrow-left"></i></button>
+    <div id="camera-fullscreen-container">
+        <button class="close-camera-btn" onclick="stopFullscreenCamera()"><i class="fas fa-times"></i></button>
+        <video id="camera-video" playsinline></video>
+        <div class="camera-overlay"></div>
+        <div class="scan-line"></div>
     </div>
 
-    <!-- History Panel -->
-    <div class="history-panel" id="historyPanel">
-        <div class="history-content">
-            <div class="history-header">
-                <h2>History</h2>
-                <button class="menu-btn" id="closeHistoryBtn"><i class="fas fa-times"></i></button>
-            </div>
-            <input type="text" class="history-search" id="historySearch" placeholder="Search...">
+    <div id="historyViewModal">
+        <h2 id="historyQRTitle" style="color: white; margin-bottom: 20px; font-weight: 700; text-align: center;">QR Code</h2>
+        <div id="historyQRCanvasBox" style="background: white; padding: 20px; border-radius: 20px;"></div>
+        <div class="history-view-actions">
+            <button class="btn btn-secondary" onclick="document.getElementById('historyViewModal').classList.remove('active')"><i class="fas fa-times"></i> Close</button>
+            <button class="btn btn-accent" onclick="downloadHistoryQR()"><i class="fas fa-download"></i> Download</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-header">
+            <h2><i class="fas fa-history"></i> <span data-i18n="menuHistory">History</span></h2>
+            <button class="icon-btn" onclick="closeModal('historyModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-content">
+            <input type="text" class="form-control" id="historySearch" placeholder="Search by Name, Date, or Time..." oninput="renderHistory()" style="margin-bottom: 25px;">
             <div id="historyList"></div>
         </div>
     </div>
 
+    <div class="modal-overlay" id="langModal">
+        <div class="modal-header">
+            <h2><i class="fas fa-language"></i> <span data-i18n="menuLanguage">Language</span></h2>
+            <button class="icon-btn" onclick="closeModal('langModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-content">
+            <div class="lang-grid" id="langGridContainer"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal-header">
+            <h2><i class="fas fa-info-circle"></i> <span data-i18n="menuAbout">About</span></h2>
+            <button class="icon-btn" onclick="closeModal('aboutModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-content" id="aboutContent"></div>
+    </div>
+
     <script>
-    (function(){
-        "use strict";
-        
-        // ---------- STATE ----------
-        let selectedTypes = new Set(['url']);
-        let currentGradient = 'solid';
-        let currentTexture = 'none';
-        let qrCanvas = null;
-        let cameraStream = null;
-        let scanInterval = null;
-        let qrHistory = JSON.parse(localStorage.getItem('qrHistory') || '[]');
-        let imageBase64 = null;
-        
-        // ---------- HELPER: Copy ----------
-        window.copyToClipboard = function(text) {
-            navigator.clipboard?.writeText(text).then(() => {
-                alert('Copied!');
-            }).catch(() => {
-                prompt('Copy manually:', text);
-            });
-        };
-        
-        // ---------- DARK MODE ----------
-        document.getElementById('darkModeToggle').addEventListener('click', () => {
-            document.body.classList.toggle('dark');
-            const icon = document.getElementById('darkModeToggle').querySelector('i');
-            icon.classList.toggle('fa-moon');
-            icon.classList.toggle('fa-sun');
+    "use strict";
+
+    // ================= STATE =================
+    let currentType = 'url';
+    let activeGradient = 0;
+    let activeTexture = -1;
+    let currentRawData = "";
+    let currentActionLink = "";
+    let qrHistory = JSON.parse(localStorage.getItem('qrStudioHistory_v3') || '[]');
+
+    document.getElementById('darkModeToggle').addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        document.querySelector('#darkModeToggle i').className = document.body.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
+    });
+
+    document.getElementById('menuToggle').addEventListener('click', (e) => { 
+        e.stopPropagation(); document.getElementById('menuDropdown').classList.toggle('active'); 
+    });
+    document.addEventListener('click', () => document.getElementById('menuDropdown').classList.remove('active'));
+
+    function openModal(id) { document.getElementById(id).classList.add('active'); closeMenu(); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function closeMenu() { document.getElementById('menuDropdown').classList.remove('active'); }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        document.getElementById('tab-' + tabId).classList.add('active');
+    }
+
+    function toggleExpand(id, btn) {
+        const grid = document.getElementById(id);
+        grid.classList.toggle('expanded');
+        btn.innerText = grid.classList.contains('expanded') ? 'Show Less' : 'Show All';
+    }
+
+    // ================= DYNAMIC FORMS =================
+    const inputTemplates = {
+        url: `<div class="form-group"><label>Website URL</label><input type="url" class="form-control" id="inp_url" value="https://google.com"></div>`,
+        text: `<div class="form-group"><label>Enter Text</label><textarea class="form-control" id="inp_text" rows="3">Hello World</textarea></div>`,
+        payment: `
+            <div class="form-group"><label>UPI ID (e.g., prince@ybl)</label><input type="text" class="form-control" id="inp_pay_upi" placeholder="example@upi"></div>
+            <div class="form-group"><label>Payee Name</label><input type="text" class="form-control" id="inp_pay_name" placeholder="Prince"></div>
+            <div class="form-group"><label>Amount (₹) [Optional]</label><input type="number" class="form-control" id="inp_pay_amt" placeholder="1000"></div>
+            <div class="form-group"><label>Transaction Note [Optional]</label><input type="text" class="form-control" id="inp_pay_note" placeholder="Payment for..."></div>
+        `,
+        location: `
+            <div class="form-group"><label>Latitude (e.g., 28.6139)</label><input type="number" step="any" class="form-control" id="inp_loc_lat" placeholder="28.6139"></div>
+            <div class="form-group"><label>Longitude (e.g., 77.2090)</label><input type="number" step="any" class="form-control" id="inp_loc_lng" placeholder="77.2090"></div>
+        `,
+        wifi: `
+            <div class="form-group"><label>Network Name (SSID)</label><input type="text" class="form-control" id="inp_w_ssid" placeholder="MyWiFi"></div>
+            <div class="form-group"><label>Password</label><input type="text" class="form-control" id="inp_w_pass" placeholder="Password"></div>
+        `,
+        contact: `<div class="form-group"><label>Full Name</label><input type="text" class="form-control" id="inp_c_name" placeholder="John"></div><div class="form-group"><label>Phone</label><input type="tel" class="form-control" id="inp_c_phone" placeholder="9876543210"></div>`,
+        email: `<div class="form-group"><label>Email Address</label><input type="email" class="form-control" id="inp_e_to" placeholder="hello@domain.com"></div>`,
+        sms: `<div class="form-group"><label>Phone Number</label><input type="tel" class="form-control" id="inp_s_phone" placeholder="9876543210"></div>`
+    };
+
+    function renderInputPanel() { document.getElementById('dynamicInputPanel').innerHTML = inputTemplates[currentType]; }
+
+    document.querySelectorAll('.type-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active'); currentType = btn.dataset.type;
+            renderInputPanel();
         });
-        
-        // ---------- MENU ----------
-        document.getElementById('menuToggle').addEventListener('click', (e) => {
-            e.stopPropagation();
-            document.getElementById('menuDropdown').classList.toggle('active');
-        });
-        document.addEventListener('click', () => document.getElementById('menuDropdown').classList.remove('active'));
-        
-        // ---------- HISTORY ----------
-        function saveHistory(name, data, types) {
-            const entry = { id: Date.now(), name, types: Array.from(types).join(', '), data, date: new Date().toLocaleString() };
-            qrHistory.unshift(entry);
-            if (qrHistory.length > 50) qrHistory.pop();
-            localStorage.setItem('qrHistory', JSON.stringify(qrHistory));
+    });
+
+    function getPayload() {
+        switch(currentType) {
+            case 'url': return document.getElementById('inp_url').value || 'https://google.com';
+            case 'text': return document.getElementById('inp_text').value || 'Text';
+            case 'payment':
+                const u = document.getElementById('inp_pay_upi').value; const n = document.getElementById('inp_pay_name').value;
+                const a = document.getElementById('inp_pay_amt').value; const tn = document.getElementById('inp_pay_note').value;
+                let pay = `upi://pay?pa=${u}&pn=${encodeURIComponent(n)}&cu=INR`;
+                if(a) pay += `&am=${a}`; if(tn) pay += `&tn=${encodeURIComponent(tn)}`; return pay;
+            case 'location': return `https://www.google.com/maps/search/?api=1&query=$${document.getElementById('inp_loc_lat').value},${document.getElementById('inp_loc_lng').value}`;
+            case 'wifi': return `WIFI:T:WPA;S:${document.getElementById('inp_w_ssid').value};P:${document.getElementById('inp_w_pass').value};;`;
+            case 'contact': return `BEGIN:VCARD\nVERSION:3.0\nN:${document.getElementById('inp_c_name').value}\nTEL:${document.getElementById('inp_c_phone').value}\nEND:VCARD`;
+            case 'email': return `mailto:${document.getElementById('inp_e_to').value}`;
+            case 'sms': return `sms:${document.getElementById('inp_s_phone').value}`;
         }
-        
-        function renderHistory(search = '') {
-            const list = document.getElementById('historyList');
-            const filtered = search ? qrHistory.filter(h => h.name.toLowerCase().includes(search.toLowerCase()) || h.date.includes(search)) : qrHistory;
-            if (filtered.length === 0) {
-                list.innerHTML = '<p style="color:#86868b;text-align:center;padding:40px;">No history</p>';
-                return;
+    }
+
+    // ================= TEXTURE & GRADIENT =================
+    function initGradients() {
+        let html = `<div class="style-item active" style="background:var(--primary)" onclick="selectGrad(0, this)"></div>`;
+        for(let i=1; i<100; i++) html += `<div class="style-item" style="background:linear-gradient(135deg, hsl(${(i*17)%360},80%,55%), hsl(${((i*17)+50)%360},90%,60%))" onclick="selectGrad(${i}, this)"></div>`;
+        document.getElementById('gradientGrid').innerHTML = html;
+    }
+    function selectGrad(idx, el) { document.querySelectorAll('#gradientGrid .style-item').forEach(e=>e.classList.remove('active')); el.classList.add('active'); activeGradient = idx; }
+
+    function initTextures() {
+        let html = `<div class="style-item active" style="background:#fff; border:1px solid var(--border-color)" onclick="selectTex(-1, this)"></div>`;
+        for(let i=0; i<99; i++) {
+            let bg = i%4===0 ? `radial-gradient(circle, #000 30%, transparent 35%) 0 0 / 8px 8px` : 
+                     i%4===1 ? `repeating-linear-gradient(45deg, #000, #000 2px, transparent 2px, transparent 6px)` : 
+                     i%4===2 ? `linear-gradient(#000 2px, transparent 2px) 0 0 / 8px 8px, linear-gradient(90deg, #000 2px, transparent 2px) 0 0 / 8px 8px` : 
+                               `repeating-linear-gradient(90deg, #000, #000 2px, transparent 2px, transparent 6px)`;
+            html += `<div class="style-item" style="background:${bg}" onclick="selectTex(${i}, this)"></div>`;
+        }
+        document.getElementById('textureGrid').innerHTML = html;
+    }
+    function selectTex(idx, el) { document.querySelectorAll('#textureGrid .style-item').forEach(e=>e.classList.remove('active')); el.classList.add('active'); activeTexture = idx; }
+
+    function drawRealTexture(ctx, txIndex, x, y, size, fgColor, bgColor) {
+        ctx.fillStyle = fgColor;
+        if(txIndex === -1) { ctx.fillRect(x, y, size, size); return; }
+        ctx.fillRect(x, y, size, size);
+        ctx.fillStyle = bgColor;
+        const t = txIndex % 4; const s = (txIndex % 3) + 2;
+        ctx.save(); ctx.beginPath(); ctx.rect(x, y, size, size); ctx.clip();
+        if (t === 0) { for(let i=0;i<size;i+=s*2) for(let j=0;j<size;j+=s*2){ ctx.beginPath(); ctx.arc(x+i, y+j, s/2, 0, Math.PI*2); ctx.fill(); } } 
+        else if (t === 1) { for(let i=-size;i<size*2;i+=s*3){ ctx.beginPath(); ctx.moveTo(x+i, y); ctx.lineTo(x+i+size, y+size); ctx.lineWidth = s/1.5; ctx.strokeStyle = bgColor; ctx.stroke(); } } 
+        else if (t === 2) { ctx.fillRect(x + size/4, y + size/4, size/2, size/2); } 
+        else { for(let i=0;i<size;i+=s*2) ctx.fillRect(x, y+i, size, s/1.5); }
+        ctx.restore();
+    }
+
+    function generateQR() {
+        const payload = getPayload();
+        const container = document.getElementById('qrcodeCanvas');
+        try {
+            const qr = qrcode(0, 'H'); qr.addData(payload); qr.make();
+            const modCount = qr.getModuleCount();
+            const cell = 15; const size = modCount * cell; const pad = 40;
+            
+            const cvs = document.createElement('canvas');
+            cvs.width = size + (pad*2); cvs.height = size + (pad*2);
+            const ctx = cvs.getContext('2d');
+            
+            const bgColor = document.getElementById('bgColor').value;
+            const fgColor = document.getElementById('fgColor').value;
+            
+            ctx.fillStyle = bgColor; ctx.fillRect(0, 0, cvs.width, cvs.height);
+            
+            let finalFg = fgColor;
+            if(activeGradient > 0) {
+                const grad = ctx.createLinearGradient(pad, pad, pad+size, pad+size);
+                grad.addColorStop(0, `hsl(${(activeGradient*17)%360}, 80%, 45%)`);
+                grad.addColorStop(1, `hsl(${((activeGradient*17)+50)%360}, 90%, 55%)`);
+                finalFg = grad;
             }
-            list.innerHTML = filtered.map(h => `
-                <div class="history-item" data-history-id="${h.id}">
-                    <div class="history-name">${h.name}</div>
-                    <div class="history-date">${h.date} • ${h.types}</div>
+
+            for (let r = 0; r < modCount; r++) for (let c = 0; c < modCount; c++) if (qr.isDark(r, c)) drawRealTexture(ctx, activeTexture, pad + c*cell, pad + r*cell, cell, finalFg, bgColor);
+            
+            container.innerHTML = ''; container.appendChild(cvs);
+
+            // SAVE HISTORY STRICTLY
+            let baseName = document.getElementById('qrName').value.trim() || 'My QR Code';
+            let finalName = baseName;
+            let counter = 1;
+            while(qrHistory.some(h => h.name === finalName)) { finalName = `${baseName} (${counter})`; counter++; }
+            
+            const d = new Date();
+            const timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const dateStr = d.toLocaleDateString();
+
+            qrHistory.unshift({ id: Date.now(), name: finalName, type: currentType, dataStr: payload, date: dateStr, time: timeStr });
+            if(qrHistory.length > 100) qrHistory.pop();
+            localStorage.setItem('qrStudioHistory_v3', JSON.stringify(qrHistory));
+
+        } catch (e) { container.innerHTML = `<p style="color:var(--danger)">Data too large.</p>`; }
+    }
+
+    function downloadQR() {
+        const c = document.querySelector('#qrcodeCanvas canvas');
+        if(c) { const a = document.createElement('a'); a.download = `QR_${Date.now()}.png`; a.href = c.toDataURL(); a.click(); }
+    }
+
+    // ================= HISTORY FULLSCREEN RE-OPEN =================
+    function renderHistory() {
+        const list = document.getElementById('historyList');
+        const q = document.getElementById('historySearch').value.toLowerCase();
+        
+        const filtered = qrHistory.filter(h => h.name.toLowerCase().includes(q) || h.date.includes(q) || h.time.toLowerCase().includes(q));
+        
+        if(filtered.length === 0) { list.innerHTML = `<p style="text-align:center; color:var(--gray-text);">No history found.</p>`; return; }
+
+        list.innerHTML = filtered.map(h => `
+            <div class="history-item" onclick="viewHistoryQR('${h.id}')">
+                <div>
+                    <h4 style="color:var(--accent); margin-bottom:5px;">${h.name}</h4>
+                    <p style="font-size:0.8rem; color:var(--gray-text);"><i class="far fa-calendar-alt"></i> ${h.date}   <i class="far fa-clock"></i> ${h.time}</p>
                 </div>
-            `).join('');
-            
-            document.querySelectorAll('.history-item').forEach(el => {
-                el.addEventListener('click', () => {
-                    const id = Number(el.dataset.historyId);
-                    const entry = qrHistory.find(h => h.id === id);
-                    if (entry) {
-                        generateQRFromData(entry.data);
-                        document.getElementById('historyPanel').classList.remove('active');
-                    }
-                });
-            });
-        }
-        
-        document.getElementById('historyMenuBtn').addEventListener('click', () => {
-            document.getElementById('menuDropdown').classList.remove('active');
-            document.getElementById('historyPanel').classList.add('active');
-            renderHistory();
-        });
-        document.getElementById('closeHistoryBtn').addEventListener('click', () => document.getElementById('historyPanel').classList.remove('active'));
-        document.getElementById('historySearch').addEventListener('input', e => renderHistory(e.target.value));
-        
-        // ---------- TABS ----------
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                tab.classList.add('active');
-                document.getElementById(tab.dataset.page === 'generator' ? 'generatorPage' : 'scannerPage').classList.add('active');
-                if (tab.dataset.page !== 'scanner') stopCamera();
-            });
-        });
-        
-        // ---------- CONTENT PANELS ----------
-        const panels = {
-            url: `<div class="form-group"><label>URL</label><input class="form-control" id="urlInput" value="https://google.com"></div>`,
-            text: `<div class="form-group"><label>Text</label><textarea class="form-control" id="textInput">Hello World!</textarea></div>`,
-            image: `<div class="form-group"><label>Image</label><input type="file" class="form-control" id="imageInput" accept="image/*"></div>`,
-            location: `<div class="form-group"><label>Location Name</label><input class="form-control" id="locName" value="New Delhi"></div><div class="row-2"><div class="form-group"><input class="form-control" id="locLat" value="28.6139"></div><div class="form-group"><input class="form-control" id="locLng" value="77.2090"></div></div>`,
-            contact: `<div class="form-group"><label>Name</label><input class="form-control" id="contactName" value="Raj"></div><div class="form-group"><label>Phone</label><input class="form-control" id="contactPhone" value="+919876543210"></div><div class="form-group"><label>Email</label><input class="form-control" id="contactEmail" value="raj@example.com"></div>`,
-            wifi: `<div class="form-group"><label>SSID</label><input class="form-control" id="wifiSsid" value="MyWiFi"></div><div class="form-group"><label>Password</label><input class="form-control" id="wifiPassword" value="pass123"></div>`,
-            email: `<div class="form-group"><label>To</label><input class="form-control" id="emailTo" value="hello@example.com"></div><div class="form-group"><label>Subject</label><input class="form-control" id="emailSubject" value="Hello"></div><div class="form-group"><label>Body</label><textarea class="form-control" id="emailBody">Test</textarea></div>`,
-            sms: `<div class="form-group"><label>Phone</label><input class="form-control" id="smsPhone" value="+919876543210"></div><div class="form-group"><label>Message</label><textarea class="form-control" id="smsBody">Hello!</textarea></div>`,
-            call: `<div class="form-group"><label>Phone</label><input class="form-control" id="callPhone" value="+919876543210"></div>`
-        };
-        
-        function updatePanels() {
-            let html = '';
-            for (let t of selectedTypes) if (panels[t]) html += panels[t];
-            document.getElementById('contentPanels').innerHTML = html;
-            document.getElementById('multiBadge').classList.toggle('hidden', selectedTypes.size <= 1);
-            if (selectedTypes.has('image')) {
-                document.getElementById('imageInput')?.addEventListener('change', e => {
-                    const f = e.target.files[0];
-                    if (f) { const r = new FileReader(); r.onload = ev => imageBase64 = ev.target.result; r.readAsDataURL(f); }
-                });
+                <div style="font-size: 1.2rem; color: var(--gray-text);"><i class="fas fa-expand-arrows-alt"></i></div>
+            </div>
+        `).join('');
+    }
+
+    window.viewHistoryQR = function(id) {
+        const item = qrHistory.find(h => h.id == id);
+        if(!item) return;
+
+        document.getElementById('historyQRTitle').innerText = item.name;
+        document.getElementById('historyViewModal').classList.add('active');
+        closeModal('historyModal');
+
+        const qr = qrcode(0, 'H');
+        qr.addData(item.dataStr);
+        qr.make();
+        const cell = 12; const pad = 30;
+        const size = qr.getModuleCount() * cell;
+        const cvs = document.createElement('canvas');
+        cvs.width = size + pad*2; cvs.height = size + pad*2;
+        const ctx = cvs.getContext('2d');
+        ctx.fillStyle = "#ffffff"; ctx.fillRect(0,0,cvs.width,cvs.height);
+        ctx.fillStyle = "#000000";
+        for(let r=0; r<qr.getModuleCount(); r++){
+            for(let c=0; c<qr.getModuleCount(); c++){
+                if(qr.isDark(r,c)) ctx.fillRect(pad + c*cell, pad + r*cell, cell, cell);
             }
         }
-        
-        document.querySelectorAll('.content-type-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const t = btn.dataset.type;
-                if (selectedTypes.has(t)) { if (selectedTypes.size > 1) { selectedTypes.delete(t); btn.classList.remove('active'); } }
-                else { selectedTypes.add(t); btn.classList.add('active'); }
-                updatePanels();
-            });
-        });
-        
-        // ---------- STYLE ----------
-        document.querySelectorAll('[data-gradient]').forEach(el => el.addEventListener('click', function(){ 
-            document.querySelectorAll('[data-gradient]').forEach(e=>e.classList.remove('active')); 
-            this.classList.add('active'); 
-            currentGradient=this.dataset.gradient; 
-        }));
-        document.querySelectorAll('[data-texture]').forEach(el => el.addEventListener('click', function(){ 
-            document.querySelectorAll('[data-texture]').forEach(e=>e.classList.remove('active')); 
-            this.classList.add('active'); 
-            currentTexture=this.dataset.texture; 
-        }));
-        document.getElementById('opacitySlider').addEventListener('input', e => document.getElementById('opacityVal').textContent = e.target.value);
-        
-        // ---------- DATA ----------
-        function getMultiData() {
-            const c = { _header: document.getElementById('pageHeader').value || 'My QR' };
-            if (selectedTypes.has('url')) c.url = document.getElementById('urlInput')?.value || 'https://google.com';
-            if (selectedTypes.has('text')) c.text = document.getElementById('textInput')?.value || 'Hello';
-            if (selectedTypes.has('image') && imageBase64) c.image = imageBase64;
-            if (selectedTypes.has('location')) c.location = { name: document.getElementById('locName')?.value || 'Loc', lat: document.getElementById('locLat')?.value, lng: document.getElementById('locLng')?.value };
-            if (selectedTypes.has('contact')) c.contact = { name: document.getElementById('contactName')?.value, phone: document.getElementById('contactPhone')?.value, email: document.getElementById('contactEmail')?.value };
-            if (selectedTypes.has('wifi')) c.wifi = { ssid: document.getElementById('wifiSsid')?.value, password: document.getElementById('wifiPassword')?.value };
-            if (selectedTypes.has('email')) c.email = { to: document.getElementById('emailTo')?.value, subject: document.getElementById('emailSubject')?.value, body: document.getElementById('emailBody')?.value };
-            if (selectedTypes.has('sms')) c.sms = { phone: document.getElementById('smsPhone')?.value, body: document.getElementById('smsBody')?.value };
-            if (selectedTypes.has('call')) c.call = document.getElementById('callPhone')?.value;
-            return JSON.stringify(c);
-        }
-        
-        // ---------- QR GENERATION ----------
-        async function generateQRCode() {
-            const data = getMultiData();
-            const qrName = document.getElementById('qrName').value || 'My QR';
-            await generateQRFromData(data);
-            saveHistory(qrName, data, selectedTypes);
-        }
-        
-        async function generateQRFromData(dataString) {
-            const container = document.getElementById('qrcodeCanvas');
-            container.innerHTML = '<div style="padding:40px;"><i class="fas fa-spinner fa-pulse"></i></div>';
-            
-            try {
-                const qr = qrcode(0, 'M');
-                qr.addData(dataString);
-                qr.make();
-                
-                const moduleCount = qr.getModuleCount();
-                const cellSize = 10;  // larger for better scanning
-                const size = moduleCount * cellSize;
-                
-                const canvas = document.createElement('canvas');
-                canvas.width = size;
-                canvas.height = size;
-                const ctx = canvas.getContext('2d');
-                ctx.imageSmoothingEnabled = false;
-                
-                const bgColor = document.getElementById('bgColor').value;
-                const fgColor = document.getElementById('fgColor').value;
-                const opacity = parseInt(document.getElementById('opacitySlider').value) / 100;
-                
-                // Fill background
-                ctx.fillStyle = bgColor;
-                ctx.fillRect(0, 0, size, size);
-                
-                // Foreground style (gradient or solid)
-                let fgStyle = fgColor;
-                if (currentGradient !== 'solid') {
-                    let grad;
-                    if (currentGradient === 'sunset') grad = ctx.createLinearGradient(0, 0, size, size);
-                    else if (currentGradient === 'ocean') grad = ctx.createLinearGradient(0, 0, size, 0);
-                    else if (currentGradient === 'purple') grad = ctx.createLinearGradient(size, 0, 0, size);
-                    else if (currentGradient === 'forest') grad = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
-                    else grad = ctx.createLinearGradient(0, 0, size, size);
+        document.getElementById('historyQRCanvasBox').innerHTML = '';
+        document.getElementById('historyQRCanvasBox').appendChild(cvs);
+    }
+
+    window.downloadHistoryQR = function() {
+        const c = document.querySelector('#historyQRCanvasBox canvas');
+        if(c) { const a = document.createElement('a'); a.download = `QR_History_${Date.now()}.png`; a.href = c.toDataURL(); a.click(); }
+    }
+
+    // ================= FULLSCREEN CAMERA (AUTO OPEN + DETAILS) =================
+    let camStream = null; let camInterval = null;
+
+    async function startFullscreenCamera() {
+        const container = document.getElementById('camera-fullscreen-container');
+        const video = document.getElementById('camera-video');
+        container.classList.add('active');
+
+        try {
+            camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+            video.srcObject = camStream; video.play();
+            camInterval = setInterval(() => {
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    const cvs = document.createElement("canvas"); cvs.width = video.videoWidth; cvs.height = video.videoHeight;
+                    cvs.getContext("2d").drawImage(video, 0, 0);
+                    const code = jsQR(cvs.getContext("2d").getImageData(0,0,cvs.width,cvs.height).data, cvs.width, cvs.height, { inversionAttempts: "dontInvert" });
                     
-                    if (currentGradient === 'sunset') { grad.addColorStop(0, '#ff6b6b'); grad.addColorStop(1, '#feca57'); }
-                    else if (currentGradient === 'ocean') { grad.addColorStop(0, '#0066cc'); grad.addColorStop(1, '#00cc99'); }
-                    else if (currentGradient === 'purple') { grad.addColorStop(0, '#667eea'); grad.addColorStop(1, '#764ba2'); }
-                    else if (currentGradient === 'forest') { grad.addColorStop(0, '#11998e'); grad.addColorStop(1, '#38ef7d'); }
-                    else { grad.addColorStop(0, fgColor); grad.addColorStop(1, fgColor); }
-                    fgStyle = grad;
-                }
-                
-                ctx.globalAlpha = opacity;
-                
-                // Draw modules
-                for (let row = 0; row < moduleCount; row++) {
-                    for (let col = 0; col < moduleCount; col++) {
-                        if (qr.isDark(row, col)) {
-                            const x = col * cellSize;
-                            const y = row * cellSize;
-                            
-                            if (currentTexture !== 'none') {
-                                ctx.save();
-                                ctx.beginPath();
-                                ctx.rect(x, y, cellSize, cellSize);
-                                ctx.clip();
-                                ctx.fillStyle = fgStyle;
-                                ctx.fillRect(x, y, cellSize, cellSize);
-                                
-                                ctx.fillStyle = bgColor;
-                                if (currentTexture === 'dots') {
-                                    for (let i=0; i<cellSize; i+=4) for (let j=0; j<cellSize; j+=4) {
-                                        if ((i+j) % 8 === 0) ctx.fillRect(x+i, y+j, 2, 2);
-                                    }
-                                } else if (currentTexture === 'lines') {
-                                    ctx.strokeStyle = bgColor;
-                                    ctx.lineWidth = 1.5;
-                                    for (let k=-cellSize; k<cellSize*2; k+=6) {
-                                        ctx.beginPath();
-                                        ctx.moveTo(x+k, y);
-                                        ctx.lineTo(x+k+cellSize, y+cellSize);
-                                        ctx.stroke();
-                                    }
-                                } else if (currentTexture === 'grid') {
-                                    ctx.strokeStyle = bgColor;
-                                    ctx.lineWidth = 1;
-                                    for (let k=0; k<=cellSize; k+=4) {
-                                        ctx.beginPath(); ctx.moveTo(x+k, y); ctx.lineTo(x+k, y+cellSize); ctx.stroke();
-                                        ctx.beginPath(); ctx.moveTo(x, y+k); ctx.lineTo(x+cellSize, y+k); ctx.stroke();
-                                    }
-                                } else if (currentTexture === 'cross') {
-                                    ctx.strokeStyle = bgColor;
-                                    ctx.lineWidth = 1.8;
-                                    for (let k=2; k<cellSize; k+=6) {
-                                        ctx.beginPath(); ctx.moveTo(x+k, y); ctx.lineTo(x+k+4, y+cellSize); ctx.stroke();
-                                        ctx.beginPath(); ctx.moveTo(x, y+k); ctx.lineTo(x+cellSize, y+k+4); ctx.stroke();
-                                    }
-                                }
-                                ctx.restore();
-                            } else {
-                                ctx.fillStyle = fgStyle;
-                                ctx.fillRect(x, y, cellSize, cellSize);
-                            }
+                    if (code) { 
+                        stopFullscreenCamera(); 
+                        parseAndShowResult(code.data); 
+                        
+                        const d = code.data;
+                        if(d.startsWith('http') || d.startsWith('upi:') || d.startsWith('tel:') || d.startsWith('mailto:') || d.startsWith('sms:')) {
+                            setTimeout(() => { window.location.href = d; }, 500); 
                         }
                     }
                 }
-                ctx.globalAlpha = 1.0;
+            }, 300);
+        } catch (e) { alert("Camera access denied."); stopFullscreenCamera(); }
+    }
+
+    function stopFullscreenCamera() {
+        if(camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+        if(camInterval) { clearInterval(camInterval); camInterval = null; }
+        document.getElementById('camera-fullscreen-container').classList.remove('active');
+    }
+
+    // ================= SMART UPLOAD SCANNER =================
+    function handleFileUpload(e) {
+        const file = e.target.files[0]; if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const img = new Image();
+            img.onload = () => {
+                const cvs = document.createElement('canvas');
+                const scale = Math.min(1, 1000 / img.width);
+                cvs.width = img.width * scale; cvs.height = img.height * scale;
+                const ctx = cvs.getContext('2d'); ctx.drawImage(img, 0, 0, cvs.width, cvs.height);
+                let imgData = ctx.getImageData(0,0,cvs.width,cvs.height);
                 
-                container.innerHTML = '';
-                container.appendChild(canvas);
-                qrCanvas = canvas;
-            } catch(e) {
-                container.innerHTML = '<p style="color:red;">Error generating QR</p>';
-            }
-        }
-        
-        // ---------- DOWNLOAD (WHITE BG + 1px BORDER) ----------
-        function downloadQR() {
-            if (!qrCanvas) {
-                alert('पहले QR जनरेट करें!');
-                return;
-            }
-
-            const originalCtx = qrCanvas.getContext('2d');
-            const w = qrCanvas.width;
-            const h = qrCanvas.height;
-            const imageData = originalCtx.getImageData(0, 0, w, h);
-            const data = imageData.data;
-
-            // Create new canvas with 2px extra (1px border on each side)
-            const border = 2; // 1px left + 1px right = +2 total width/height
-            const newCanvas = document.createElement('canvas');
-            newCanvas.width = w + border;
-            newCanvas.height = h + border;
-            const newCtx = newCanvas.getContext('2d');
-
-            // Fill with pure white
-            newCtx.fillStyle = '#FFFFFF';
-            newCtx.fillRect(0, 0, newCanvas.width, newCanvas.height);
-
-            const newImageData = newCtx.getImageData(0, 0, newCanvas.width, newCanvas.height);
-            const newData = newImageData.data;
-
-            // Copy QR pixels with 1px offset
-            for (let y = 0; y < h; y++) {
-                for (let x = 0; x < w; x++) {
-                    const srcIdx = (y * w + x) * 4;
-                    const dstIdx = ((y + 1) * newCanvas.width + (x + 1)) * 4;
-
-                    const r = data[srcIdx];
-                    const g = data[srcIdx + 1];
-                    const b = data[srcIdx + 2];
-                    const a = data[srcIdx + 3];
-
-                    // Copy only non-white (QR module) pixels
-                    if (a > 0 && (r < 240 || g < 240 || b < 240)) {
-                        newData[dstIdx] = r;
-                        newData[dstIdx + 1] = g;
-                        newData[dstIdx + 2] = b;
-                        newData[dstIdx + 3] = 255;
+                let code = jsQR(imgData.data, cvs.width, cvs.height, { inversionAttempts: "attemptBoth" });
+                if(!code) {
+                    let d = imgData.data;
+                    for(let i=0; i<d.length; i+=4) {
+                        let gray = d[i]*0.299 + d[i+1]*0.587 + d[i+2]*0.114;
+                        let val = gray > 140 ? 255 : 0; 
+                        d[i] = d[i+1] = d[i+2] = val;
                     }
+                    code = jsQR(d, cvs.width, cvs.height, { inversionAttempts: "attemptBoth" });
                 }
-            }
 
-            newCtx.putImageData(newImageData, 0, 0);
-
-            const a = document.createElement('a');
-            a.download = `QR_${Date.now()}.png`;
-            a.href = newCanvas.toDataURL('image/png');
-            a.click();
-        }
-        
-        // ---------- CAMERA & SCANNER ----------
-        function stopCamera() {
-            if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
-            if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
-            document.getElementById('cameraFullscreen').classList.remove('active');
-        }
-        
-        async function openCamera() {
-            document.getElementById('cameraFullscreen').classList.add('active');
-            try {
-                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                const video = document.getElementById('cameraVideo');
-                video.srcObject = cameraStream;
-                video.setAttribute('playsinline', true);
-                video.play();
-                scanInterval = setInterval(captureAndScan, 500);
-            } catch(e) { 
-                alert('Camera access denied'); 
-                stopCamera(); 
-            }
-        }
-        
-        function captureAndScan() {
-            const v = document.getElementById('cameraVideo');
-            if (!v.srcObject || v.readyState !== 4) return;
-            
-            const canvas = document.createElement('canvas');
-            const w = v.videoWidth, h = v.videoHeight;
-            if (!w || !h) return;
-            canvas.width = w; canvas.height = h;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(v, 0, 0, w, h);
-            
-            const imageData = ctx.getImageData(0, 0, w, h);
-            let code = jsQR(imageData.data, w, h);
-            
-            if (!code) {
-                const data = imageData.data;
-                for (let i=0; i<data.length; i+=4) {
-                    const gray = data[i]*0.299 + data[i+1]*0.587 + data[i+2]*0.114;
-                    const val = gray > 128 ? 0 : 255;
-                    data[i] = data[i+1] = data[i+2] = val;
-                }
-                code = jsQR(data, w, h);
-            }
-            
-            if (code) {
-                stopCamera();
-                processScan(code.data);
-            }
-        }
-        
-        function decodeImage(file) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    let w = img.width, h = img.height;
-                    if (w > 1200 || h > 1200) {
-                        if (w > h) { h = (h/w)*1200; w = 1200; }
-                        else { w = (w/h)*1200; h = 1200; }
-                    }
-                    canvas.width = w; canvas.height = h;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, w, h);
-                    let imageData = ctx.getImageData(0, 0, w, h);
-                    let code = jsQR(imageData.data, w, h);
-                    if (!code) {
-                        const d = imageData.data;
-                        for (let i=0; i<d.length; i+=4) {
-                            const g = d[i]*0.299 + d[i+1]*0.587 + d[i+2]*0.114;
-                            d[i] = d[i+1] = d[i+2] = g>128 ? 0 : 255;
-                        }
-                        code = jsQR(d, w, h);
-                    }
-                    if (code) processScan(code.data);
-                    else alert('No QR code found');
-                };
-                img.src = e.target.result;
+                if(code) parseAndShowResult(code.data); 
+                else alert("Scanning failed. Image might be too blurry or severely angled.");
             };
-            reader.readAsDataURL(file);
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // ================= FULL COMPREHENSIVE DETAILS PARSER =================
+    function parseAndShowResult(raw) {
+        currentRawData = raw;
+        const card = document.getElementById('smart-result-card');
+        const i = document.getElementById('res-icon'); 
+        const t = document.getElementById('res-title');
+        const detailsContainer = document.getElementById('res-parsed-details');
+        const rawBox = document.getElementById('res-raw-data');
+        const btn = document.getElementById('res-action-btn');
+        
+        card.style.display = 'block'; btn.style.display = 'inline-flex'; currentActionLink = raw;
+        rawBox.innerText = raw;
+        let dHtml = '';
+
+        if (raw.startsWith('upi://')) {
+            const p = new URLSearchParams(raw.split('?')[1]);
+            i.innerHTML = '<i class="fas fa-rupee-sign"></i>'; i.style.color = 'var(--success)'; t.innerText = 'UPI Payment Details';
+            dHtml += `<div class="detail-row"><span>UPI ID (VPA):</span><strong>${p.get('pa') || '-'}</strong></div>`;
+            dHtml += `<div class="detail-row"><span>Payee Name:</span><strong>${p.get('pn') || '-'}</strong></div>`;
+            if(p.get('am')) dHtml += `<div class="detail-row"><span>Amount:</span><strong>₹${p.get('am')}</strong></div>`;
+            if(p.get('tn')) dHtml += `<div class="detail-row"><span>Note/Remark:</span><strong>${p.get('tn')}</strong></div>`;
+            if(p.get('cu')) dHtml += `<div class="detail-row"><span>Currency:</span><strong>${p.get('cu')}</strong></div>`;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Pay Now';
+        } 
+        else if (raw.startsWith('WIFI:')) {
+            i.innerHTML = '<i class="fas fa-wifi"></i>'; i.style.color = 'var(--accent)'; t.innerText = 'WiFi Network Details';
+            const ssid = raw.match(/S:(.*?);/)?.[1] || '-';
+            const pass = raw.match(/P:(.*?);/)?.[1] || 'None';
+            const type = raw.match(/T:(.*?);/)?.[1] || 'WPA';
+            dHtml += `<div class="detail-row"><span>Network Name (SSID):</span><strong>${ssid}</strong></div>`;
+            dHtml += `<div class="detail-row"><span>Password:</span><strong>${pass}</strong></div>`;
+            dHtml += `<div class="detail-row"><span>Security Type:</span><strong>${type}</strong></div>`;
+            btn.style.display = 'none'; 
         }
-        
-        function processScan(data) {
-            const detailsDiv = document.getElementById('analysisDetails');
-            const actionsDiv = document.getElementById('scanActions');
-            actionsDiv.innerHTML = '';
-            
-            try {
-                const c = JSON.parse(data);
-                let html = '';
-                
-                if (c.url) {
-                    html += `<div class="preview-card">
-                        <i class="fas fa-globe"></i> <strong>URL:</strong> ${c.url}
-                        <div class="action-group">
-                            <button class="btn btn-primary btn-small" onclick="window.open('${c.url}')">Open</button>
-                            <button class="btn btn-secondary btn-small" onclick="copyToClipboard('${c.url}')">Copy</button>
-                        </div>
-                    </div>`;
-                }
-                if (c.text) {
-                    html += `<div class="preview-card">
-                        <i class="fas fa-font"></i> <strong>Text:</strong> ${c.text}
-                        <div class="action-group">
-                            <button class="btn btn-secondary btn-small" onclick="copyToClipboard('${c.text.replace(/'/g,"\\'")}')">Copy</button>
-                        </div>
-                    </div>`;
-                }
-                if (c.image) {
-                    html += `<div class="preview-card">
-                        <i class="fas fa-image"></i> <strong>Image:</strong><br>
-                        <img src="${c.image}" style="max-width:100%; border-radius:12px; margin-top:8px;">
-                    </div>`;
-                }
-                if (c.location) {
-                    const mapsUrl = `https://maps.google.com/?q=${c.location.lat},${c.location.lng}`;
-                    html += `<div class="preview-card">
-                        <i class="fas fa-map-pin"></i> <strong>${c.location.name}</strong><br>
-                        ${c.location.lat}, ${c.location.lng}
-                        <div class="action-group">
-                            <button class="btn btn-primary btn-small" onclick="window.open('${mapsUrl}')">Maps</button>
-                            <button class="btn btn-secondary btn-small" onclick="copyToClipboard('${c.location.lat},${c.location.lng}')">Coords</button>
-                        </div>
-                    </div>`;
-                }
-                if (c.contact) {
-                    html += `<div class="preview-card">
-                        <i class="fas fa-user"></i> <strong>${c.contact.name}</strong><br>
-                        📞 ${c.contact.phone}<br> ✉️ ${c.contact.email}
-                        <div class="action-group">
-                            <button class="btn btn-primary btn-small" onclick="window.location.href='tel:${c.contact.phone}'">Call</button>
-                            <button class="btn btn-secondary btn-small" onclick="copyToClipboard('${c.contact.phone}')">Phone</button>
-                            <button class="btn btn-secondary btn-small" onclick="copyToClipboard('${c.contact.email}')">Email</button>
-                        </div>
-                    </div>`;
-                }
-                if (c.wifi) {
-                    html += `<div class="preview-card">
-                        <i class="fas fa-wifi"></i> <strong>${c.wifi.ssid}</strong><br>
-                        Password: ${c.wifi.password}
-                        <div class="action-group">
-                            <button class="btn btn-secondary btn-small" onclick="copyToClipboard('${c.wifi.password}')">Copy Password</button>
-                        </div>
-                    </div>`;
-                }
-                if (c.email) {
-                    const mailto = `mailto:${c.email.to}?subject=${encodeURIComponent(c.email.subject)}&body=${encodeURIComponent(c.email.body)}`;
-                    html += `<div class="preview-card">
-                        <i class="fas fa-envelope"></i> <strong>To:</strong> ${c.email.to}<br>
-                        Subject: ${c.email.subject}
-                        <div class="action-group">
-                            <button class="btn btn-primary btn-small" onclick="window.location.href='${mailto}'">Compose</button>
-                            <button class="btn btn-secondary btn-small" onclick="copyToClipboard('${c.email.to}')">Copy</button>
-                        </div>
-                    </div>`;
-                }
-                if (c.sms) {
-                    const smsLink = `sms:${c.sms.phone}?body=${encodeURIComponent(c.sms.body)}`;
-                    html += `<div class="preview-card">
-                        <i class="fas fa-comment"></i> <strong>SMS to:</strong> ${c.sms.phone}<br>
-                        Message: ${c.sms.body}
-                        <div class="action-group">
-                            <button class="btn btn-primary btn-small" onclick="window.location.href='${smsLink}'">Send SMS</button>
-                            <button class="btn btn-secondary btn-small" onclick="copyToClipboard('${c.sms.body}')">Copy</button>
-                        </div>
-                    </div>`;
-                }
-                if (c.call) {
-                    html += `<div class="preview-card">
-                        <i class="fas fa-phone"></i> <strong>Call:</strong> ${c.call}
-                        <div class="action-group">
-                            <button class="btn btn-primary btn-small" onclick="window.location.href='tel:${c.call}'">Dial</button>
-                            <button class="btn btn-secondary btn-small" onclick="copyToClipboard('${c.call}')">Copy</button>
-                        </div>
-                    </div>`;
-                }
-                
-                if (!html) html = '<p>No content found.</p>';
-                detailsDiv.innerHTML = html;
-                actionsDiv.innerHTML = `<button class="btn btn-secondary" onclick="copyToClipboard('${data.replace(/'/g,"\\'")}')">Copy Raw Data</button>`;
-                
-            } catch(e) {
-                detailsDiv.innerHTML = `<div class="preview-card">${data}</div>`;
-                actionsDiv.innerHTML = `
-                    <div class="action-group">
-                        <button class="btn btn-primary" onclick="copyToClipboard('${data.replace(/'/g,"\\'")}')">Copy</button>
-                        ${data.startsWith('http') ? `<button class="btn btn-primary" onclick="window.open('${data}')">Open</button>` : ''}
-                    </div>
-                `;
-            }
-            document.getElementById('analysisContainer').classList.remove('hidden');
+        else if (raw.startsWith('BEGIN:VCARD')) {
+            i.innerHTML = '<i class="fas fa-id-badge"></i>'; i.style.color = '#ff9500'; t.innerText = 'Contact Card Details';
+            const n = raw.match(/\nN:(.*?)\n/)?.[1] || raw.match(/\nFN:(.*?)\n/)?.[1] || '-';
+            const tel = raw.match(/\nTEL.*?:(.*?)\n/)?.[1] || '-';
+            const email = raw.match(/\nEMAIL.*?:(.*?)\n/)?.[1] || '-';
+            dHtml += `<div class="detail-row"><span>Name:</span><strong>${n}</strong></div>`;
+            dHtml += `<div class="detail-row"><span>Phone:</span><strong>${tel}</strong></div>`;
+            if(email !== '-') dHtml += `<div class="detail-row"><span>Email:</span><strong>${email}</strong></div>`;
+            btn.style.display = 'none'; 
         }
-        
-        // ---------- EVENT LISTENERS ----------
-        document.getElementById('generateBtn').addEventListener('click', generateQRCode);
-        document.getElementById('downloadBtn').addEventListener('click', downloadQR);
-        document.getElementById('uploadArea').addEventListener('click', () => document.getElementById('fileInput').click());
-        document.getElementById('fileInput').addEventListener('change', e => { if(e.target.files[0]) decodeImage(e.target.files[0]); });
-        document.getElementById('openCameraBtn').addEventListener('click', openCamera);
-        document.getElementById('closeCameraBtn').addEventListener('click', stopCamera);
-        
-        // Init
-        updatePanels();
-        setTimeout(generateQRCode, 100000000);
-    })();
+        else if (raw.startsWith('mailto:')) {
+            i.innerHTML = '<i class="fas fa-envelope"></i>'; i.style.color = '#ff2d55'; t.innerText = 'Email Details';
+            const email = raw.replace('mailto:', '').split('?')[0];
+            dHtml += `<div class="detail-row"><span>To Address:</span><strong>${email}</strong></div>`;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Compose Email';
+        }
+        else if (raw.startsWith('http')) {
+            i.innerHTML = '<i class="fas fa-link"></i>'; i.style.color = 'var(--accent)'; t.innerText = 'Website URL Details';
+            dHtml += `<div class="detail-row"><span>Full URL:</span><strong>${raw}</strong></div>`;
+            btn.innerHTML = '<i class="fas fa-external-link-alt"></i> Open Website';
+        }
+        else {
+            i.innerHTML = '<i class="fas fa-font"></i>'; i.style.color = 'var(--text-main)'; t.innerText = 'Text Data Details';
+            dHtml += `<div class="detail-row"><span>Content:</span><strong>${raw}</strong></div>`;
+            btn.style.display = 'none';
+        }
+
+        detailsContainer.innerHTML = dHtml;
+    }
+
+    function copyResultData() { navigator.clipboard.writeText(currentRawData).then(() => alert("Raw Payload Copied!")); }
+    function executeResultAction() { if(currentActionLink) window.location.href = currentActionLink; }
+
+    // ================= 1. FIX: 10-PAGE ABOUT SECTION =================
+    function initAbout() {
+        const pages = [
+            { t: "1. Welcome to QR Studio", d: "The ultimate QR tool designed for professionals. Fast, secure, and fully offline." },
+            { t: "2. The Instant Open Tech", d: "Camera scans trigger native OS intents (UPI, Browser, Dialer) immediately without JSON wrappers." },
+            { t: "3. Safe Upload Mode", d: "When you upload a file, we pause to show you the data safely before you decide to open it." },
+            { t: "4. Payments Engine", d: "Generate Indian UPI codes instantly. Enter your VPA and amount, and users can pay directly." },
+            { t: "5. Location Mapping", d: "Generate precise geo-location pins that seamlessly integrate with Google Maps across devices." },
+            { t: "6. Design System", d: "100+ procedural gradients and patterns generated via canvas mathematics. No image bloat." },
+            { t: "7. Privacy First", d: "No server uploads. Scans and generation happen entirely locally in your browser's memory." },
+            { t: "8. History Logs", d: "All your generated codes are saved locally. You can revisit and download them anytime." },
+            { t: "9. Full Customization", d: "Control foregrounds, backgrounds, scale, and textures in real-time." },
+            { t: "10. Connect With Us", d: "Built for speed and precision.<br><br><b>Follow for more updates:</b><br>Instagram: princexit_<br>Twitter: princexit_" }
+        ];
+        document.getElementById('aboutContent').innerHTML = pages.map(p => `
+            <div class="about-section">
+                <h3>${p.t}</h3>
+                <p>${p.d}</p>
+            </div>
+        `).join('');
+    }
+
+    // ================= 2. FIX: 50 LANGUAGES & TRANSLATION =================
+    const languagesFull = [
+        {c:'en', n:"English"}, {c:'hi', n:"हिन्दी (Hindi)"}, {c:'es', n:"Español (Spanish)"}, {c:'fr', n:"Français (French)"}, {c:'zh', n:"中文 (Chinese)"}, 
+        {c:'ar', n:"العربية (Arabic)"}, {c:'ru', n:"Русский (Russian)"}, {c:'pt', n:"Português"}, {c:'bn', n:"বাংলা (Bengali)"}, {c:'ur', n:"اردو (Urdu)"},
+        {c:'id', n:"Indonesia"}, {c:'de', n:"Deutsch (German)"}, {c:'ja', n:"日本語 (Japanese)"}, {c:'mr', n:"मराठी (Marathi)"}, {c:'te', n:"తెలుగు (Telugu)"},
+        {c:'tr', n:"Türkçe"}, {c:'ta', n:"தமிழ் (Tamil)"}, {c:'vi', n:"Tiếng Việt"}, {c:'tl', n:"Tagalog"}, {c:'ko', n:"한국어 (Korean)"}, {c:'fa', n:"فارسی (Persian)"}, 
+        {c:'ha', n:"Hausa"}, {c:'sw', n:"Swahili"}, {c:'jv', n:"Jawa"}, {c:'it', n:"Italiano"}, {c:'pa', n:"ਪੰਜਾਬੀ (Punjabi)"}, {c:'gu', n:"ગુજરાતી (Gujarati)"}, {c:'th', n:"ไทย (Thai)"}, 
+        {c:'am', n:"አማርኛ"}, {c:'kn', n:"ಕನ್ನಡ (Kannada)"}, {c:'bho', n:"Bhojpuri"}, {c:'yo', n:"Yoruba"}, {c:'uz', n:"Uzbek"}, {c:'or', n:"Odia"}, {c:'mai', n:"Maithili"}, {c:'sd', n:"Sindhi"}, 
+        {c:'uk', n:"Українська"}, {c:'ig', n:"Igbo"}, {c:'ml', n:"Malayalam"}, {c:'su', n:"Sundanese"}, {c:'ro', n:"Română"}, {c:'nl', n:"Nederlands"}, {c:'ku', n:"Kurdish"}, {c:'ne', n:"Nepali"}, 
+        {c:'si', n:"Sinhala"}, {c:'km', n:"Khmer"}, {c:'so', n:"Somali"}, {c:'zu', n:"Zulu"}, {c:'cs', n:"Czech"}, {c:'el', n:"Greek"}
+    ];
+
+    const i18n = {
+        en: { appTitle: "QR Studio", menuHome: "Home", menuHistory: "History", menuAbout: "About App", menuLanguage: "Language", tabGen: "Generate", tabScan: "Scan", contentType: "Content Type", nameLabel: "QR Name (For History)", designSys: "Design System", gradTitle: "Colors & Gradients", texTitle: "Patterns & Textures", btnGen: "Generate & Save", btnDown: "Download HD" },
+        hi: { appTitle: "क्यूआर स्टूडियो", menuHome: "होम", menuHistory: "इतिहास", menuAbout: "ऐप के बारे में", menuLanguage: "भाषा", tabGen: "बनाएं", tabScan: "स्कैन", contentType: "सामग्री प्रकार", nameLabel: "क्यूआर का नाम", designSys: "डिज़ाइन सिस्टम", gradTitle: "रंग और ग्रेडिएंट", texTitle: "पैटर्न", btnGen: "क्यूआर बनाएं", btnDown: "एचडी डाउनलोड" },
+        es: { appTitle: "QR Estudio", menuHome: "Inicio", menuHistory: "Historia", menuAbout: "Acerca de", menuLanguage: "Idioma", tabGen: "Generar", tabScan: "Escanear", contentType: "Contenido", nameLabel: "Nombre QR", designSys: "Diseño", gradTitle: "Colores", texTitle: "Texturas", btnGen: "Generar y Guardar", btnDown: "Descargar HD" },
+        fr: { appTitle: "QR Studio", menuHome: "Accueil", menuHistory: "Historique", menuAbout: "À propos", menuLanguage: "Langue", tabGen: "Générer", tabScan: "Scanner", contentType: "Contenu", nameLabel: "Nom QR", designSys: "Design", gradTitle: "Couleurs", texTitle: "Textures", btnGen: "Générer et Sauver", btnDown: "Télécharger HD" },
+        zh: { appTitle: "QR工作室", menuHome: "主页", menuHistory: "历史", menuAbout: "关于", menuLanguage: "语言", tabGen: "生成", tabScan: "扫描", contentType: "内容", nameLabel: "QR名称", designSys: "设计系统", gradTitle: "颜色", texTitle: "纹理", btnGen: "生成并保存", btnDown: "下载高清" }
+    };
+
+    function initLanguages() {
+        document.getElementById('langGridContainer').innerHTML = languagesFull.map((l) => 
+            `<div class="lang-btn" onclick="setLang('${l.c}')">${l.n}</div>`
+        ).join('');
+    }
+
+    function setLang(code) {
+        const dict = i18n[code] || i18n['en']; // default to English if translation not explicitly in dictionary
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n'); 
+            if(dict[key]) el.innerText = dict[key];
+        });
+        closeModal('langModal');
+    }
+
+    // ================= INIT =================
+    window.onload = () => { renderInputPanel(); initGradients(); initTextures(); initAbout(); initLanguages(); generateQR(); };
     </script>
 </body>
 </html>
